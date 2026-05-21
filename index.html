@@ -1,0 +1,693 @@
+<!-- 
+CHANGES MADE:
+1. Added tooltips for ALL Business Performance Metrics
+2. Added DAILY interest frequency option
+3. Added Operating Expense input
+4. Added toggle for Operating Expense Type (% or fixed amount)
+5. Updated calculations to include operating expenses
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Micro Finance Portfolio Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#f4f7fb;
+    padding:20px;
+    color:#111827;
+}
+
+h1{
+    margin-bottom:20px;
+}
+
+.dashboard{
+    display:grid;
+    grid-template-columns:380px 1fr;
+    gap:20px;
+}
+
+.card{
+    background:#fff;
+    padding:20px;
+    border-radius:14px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+
+.input-group{
+    margin-bottom:18px;
+}
+
+label{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:8px;
+    font-weight:600;
+}
+
+input, select{
+    width:100%;
+    padding:10px;
+    border:1px solid #d1d5db;
+    border-radius:8px;
+    font-size:14px;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background:#2563eb;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#1d4ed8;
+}
+
+.results{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.metric{
+    background:#eff6ff;
+    border-left:5px solid #2563eb;
+    padding:16px;
+    border-radius:10px;
+    position:relative;
+}
+
+.metric-title{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin-bottom:10px;
+}
+
+.metric h3{
+    font-size:14px;
+    color:#475569;
+}
+
+.metric p{
+    font-size:24px;
+    font-weight:bold;
+}
+
+.tooltip{
+    position:relative;
+    display:inline-block;
+    cursor:pointer;
+    color:#2563eb;
+    font-weight:bold;
+}
+
+.tooltip .tooltiptext{
+    visibility:hidden;
+    width:260px;
+    background:#111827;
+    color:white;
+    text-align:left;
+    padding:10px;
+    border-radius:8px;
+    position:absolute;
+    z-index:1;
+    top:125%;
+    left:50%;
+    margin-left:-130px;
+    opacity:0;
+    transition:0.3s;
+    font-size:12px;
+    line-height:1.5;
+}
+
+.tooltip:hover .tooltiptext{
+    visibility:visible;
+    opacity:1;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+
+th, td{
+    padding:12px;
+    border-bottom:1px solid #e5e7eb;
+    text-align:right;
+}
+
+th{
+    background:#f8fafc;
+}
+
+th:first-child,
+td:first-child{
+    text-align:center;
+}
+
+@media(max-width:900px){
+    .dashboard{
+        grid-template-columns:1fr;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>Micro Finance Lending Dashboard</h1>
+
+<div class="dashboard">
+
+    <!-- INPUTS -->
+    <div class="card">
+
+        <h2 style="margin-bottom:20px;">Loan Inputs</h2>
+
+        <div class="input-group">
+            <label>
+                Amount Lent (₹)
+                <span class="tooltip">ⓘ
+                    <span class="tooltiptext">
+                        Principal amount disbursed to the borrower.
+                    </span>
+                </span>
+            </label>
+            <input type="number" id="principal" value="50000">
+        </div>
+
+        <div class="input-group">
+            <label>
+                Annual Interest Rate (%)
+                <span class="tooltip">ⓘ
+                    <span class="tooltiptext">
+                        Annual nominal lending rate charged to borrower.
+                    </span>
+                </span>
+            </label>
+            <input type="number" id="interestRate" value="24">
+        </div>
+
+        <div class="input-group">
+            <label>
+                Loan Period (Months)
+                <span class="tooltip">ⓘ
+                    <span class="tooltiptext">
+                        Duration of the loan in months.
+                    </span>
+                </span>
+            </label>
+            <input type="number" id="loanPeriod" value="12">
+        </div>
+
+        <div class="input-group">
+            <label>
+                Interest Frequency
+                <span class="tooltip">ⓘ
+                    <span class="tooltiptext">
+                        Frequency used for interest accrual and repayment calculations.
+                    </span>
+                </span>
+            </label>
+
+            <select id="frequency">
+                <option value="365">Daily</option>
+                <option value="12" selected>Monthly</option>
+                <option value="4">Quarterly</option>
+                <option value="1">Yearly</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>
+                Processing Fees (%)
+                <span class="tooltip">ⓘ
+                    <span class="tooltiptext">
+                        Upfront fee earned during loan disbursement.
+                    </span>
+                </span>
+            </label>
+            <input type="number" id="processingFee" value="2">
+        </div>
+
+        <div class="input-group">
+            <label>
+                Cost of Capital (%)
+                <span class="tooltip">ⓘ
+                    <span class="tooltiptext">
+                        Funding cost incurred by business to raise lending capital.
+                    </span>
+                </span>
+            </label>
+            <input type="number" id="costOfCapital" value="10">
+        </div>
+
+        <div class="input-group">
+            <label>
+                Expected Default Rate (%)
+                <span class="tooltip">ⓘ
+                    <span class="tooltiptext">
+                        Estimated proportion of loan expected to default.
+                    </span>
+                </span>
+            </label>
+            <input type="number" id="defaultRate" value="3">
+        </div>
+
+        <!-- NEW OPERATING EXPENSE SECTION -->
+
+        <div class="input-group">
+            <label>
+                Operating Expense Type
+                <span class="tooltip">ⓘ
+                    <span class="tooltiptext">
+                        Choose whether operating expenses are calculated as a percentage of loan amount or as a fixed value.
+                    </span>
+                </span>
+            </label>
+
+            <select id="opexType">
+                <option value="percent">Percentage (%)</option>
+                <option value="amount">Fixed Amount (₹)</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>
+                Operating Expenses
+                <span class="tooltip">ⓘ
+                    <span class="tooltiptext">
+                        Administrative, collection, branch, employee and operational costs associated with servicing the loan.
+                    </span>
+                </span>
+            </label>
+
+            <input type="number" id="operatingExpense" value="5">
+        </div>
+
+        <button onclick="calculateLoan()">Calculate Metrics</button>
+
+    </div>
+
+    <!-- OUTPUTS -->
+    <div class="card">
+
+        <h2 style="margin-bottom:20px;">Business Performance Metrics</h2>
+
+        <div class="results">
+
+            <div class="metric">
+                <div class="metric-title">
+                    <h3>Total Interest Income</h3>
+
+                    <span class="tooltip">ⓘ
+                        <span class="tooltiptext">
+                            Total interest earned from borrower repayments over the life of the loan.
+                        </span>
+                    </span>
+                </div>
+
+                <p id="interestIncome">₹0</p>
+            </div>
+
+            <div class="metric">
+                <div class="metric-title">
+                    <h3>Processing Fee Income</h3>
+
+                    <span class="tooltip">ⓘ
+                        <span class="tooltiptext">
+                            Upfront revenue generated through loan processing charges.
+                        </span>
+                    </span>
+                </div>
+
+                <p id="feeIncome">₹0</p>
+            </div>
+
+            <div class="metric">
+                <div class="metric-title">
+                    <h3>Operating Expenses</h3>
+
+                    <span class="tooltip">ⓘ
+                        <span class="tooltiptext">
+                            Operational costs incurred in servicing and managing the loan portfolio.
+                        </span>
+                    </span>
+                </div>
+
+                <p id="opexDisplay">₹0</p>
+            </div>
+
+            <div class="metric">
+                <div class="metric-title">
+                    <h3>Net Profit</h3>
+
+                    <span class="tooltip">ⓘ
+                        <span class="tooltiptext">
+                            Remaining profit after deducting defaults, operating expenses and funding costs.
+                        </span>
+                    </span>
+                </div>
+
+                <p id="netProfit">₹0</p>
+            </div>
+
+            <div class="metric">
+                <div class="metric-title">
+                    <h3>ROI</h3>
+
+                    <span class="tooltip">ⓘ
+                        <span class="tooltiptext">
+                            Return on Investment. Measures profitability relative to principal lent.
+                        </span>
+                    </span>
+                </div>
+
+                <p id="roi">0%</p>
+            </div>
+
+            <div class="metric">
+                <div class="metric-title">
+                    <h3>IRR (Approx.)</h3>
+
+                    <span class="tooltip">ⓘ
+                        <span class="tooltiptext">
+                            Internal Rate of Return representing effective annualized yield from cash flows.
+                        </span>
+                    </span>
+                </div>
+
+                <p id="irr">0%</p>
+            </div>
+
+            <div class="metric">
+                <div class="metric-title">
+                    <h3>Effective Yield</h3>
+
+                    <span class="tooltip">ⓘ
+                        <span class="tooltiptext">
+                            Annualized effective return considering interest and fee income.
+                        </span>
+                    </span>
+                </div>
+
+                <p id="yield">0%</p>
+            </div>
+
+        </div>
+
+        <canvas id="loanChart" height="110"></canvas>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Period</th>
+                    <th>EMI</th>
+                    <th>Principal</th>
+                    <th>Interest</th>
+                    <th>Balance</th>
+                </tr>
+            </thead>
+
+            <tbody id="scheduleBody"></tbody>
+        </table>
+
+    </div>
+</div>
+
+<script>
+
+let chartInstance = null;
+
+function calculateIRR(cashFlows, guess = 0.1){
+
+    let rate = guess;
+
+    for(let i=0;i<1000;i++){
+
+        let npv = 0;
+        let derivative = 0;
+
+        for(let t=0;t<cashFlows.length;t++){
+
+            npv += cashFlows[t] / Math.pow(1 + rate, t);
+
+            derivative += -t * cashFlows[t] /
+                Math.pow(1 + rate, t + 1);
+        }
+
+        let newRate = rate - npv / derivative;
+
+        if(Math.abs(newRate - rate) < 0.00001){
+            return rate;
+        }
+
+        rate = newRate;
+    }
+
+    return rate;
+}
+
+function calculateLoan(){
+
+    const principal =
+        parseFloat(document.getElementById('principal').value);
+
+    const annualRate =
+        parseFloat(document.getElementById('interestRate').value) / 100;
+
+    const months =
+        parseFloat(document.getElementById('loanPeriod').value);
+
+    const frequency =
+        parseInt(document.getElementById('frequency').value);
+
+    const processingFeeRate =
+        parseFloat(document.getElementById('processingFee').value) / 100;
+
+    const costOfCapitalRate =
+        parseFloat(document.getElementById('costOfCapital').value) / 100;
+
+    const defaultRate =
+        parseFloat(document.getElementById('defaultRate').value) / 100;
+
+    const opexType =
+        document.getElementById('opexType').value;
+
+    const operatingExpenseInput =
+        parseFloat(document.getElementById('operatingExpense').value);
+
+    // INTEREST RATE PER PERIOD
+    let periodicRate;
+
+    if(frequency === 365){
+        periodicRate = annualRate / 365;
+    }
+    else{
+        periodicRate = annualRate / 12;
+    }
+
+    // NUMBER OF PERIODS
+    let periods;
+
+    if(frequency === 365){
+        periods = months * 30;
+    }
+    else{
+        periods = months;
+    }
+
+    // EMI
+    const emi =
+        (principal * periodicRate *
+        Math.pow(1 + periodicRate, periods)) /
+        (Math.pow(1 + periodicRate, periods) - 1);
+
+    let balance = principal;
+    let totalInterest = 0;
+
+    const tbody =
+        document.getElementById('scheduleBody');
+
+    tbody.innerHTML = "";
+
+    let balances = [];
+    let principalData = [];
+    let interestData = [];
+
+    let cashFlows = [
+        -principal + (principal * processingFeeRate)
+    ];
+
+    for(let i=1;i<=periods;i++){
+
+        let interest = balance * periodicRate;
+
+        let principalPaid = emi - interest;
+
+        balance -= principalPaid;
+
+        totalInterest += interest;
+
+        balances.push(balance > 0 ? balance.toFixed(0) : 0);
+        principalData.push(principalPaid.toFixed(0));
+        interestData.push(interest.toFixed(0));
+
+        cashFlows.push(emi);
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${i}</td>
+                <td>₹${emi.toFixed(2)}</td>
+                <td>₹${principalPaid.toFixed(2)}</td>
+                <td>₹${interest.toFixed(2)}</td>
+                <td>₹${Math.max(balance,0).toFixed(2)}</td>
+            </tr>
+        `;
+    }
+
+    const feeIncome =
+        principal * processingFeeRate;
+
+    const defaultLoss =
+        principal * defaultRate;
+
+    const fundingCost =
+        principal * costOfCapitalRate * (months / 12);
+
+    // NEW OPEX CALCULATION
+    let operatingExpense;
+
+    if(opexType === "percent"){
+        operatingExpense =
+            principal * (operatingExpenseInput / 100);
+    }
+    else{
+        operatingExpense = operatingExpenseInput;
+    }
+
+    const grossIncome =
+        totalInterest + feeIncome;
+
+    const netProfit =
+        grossIncome -
+        defaultLoss -
+        fundingCost -
+        operatingExpense;
+
+    const roi =
+        (netProfit / principal) * 100;
+
+    const effectiveYield =
+        ((grossIncome / principal) *
+        (12 / months)) * 100;
+
+    const irr =
+        calculateIRR(cashFlows) * 12 * 100;
+
+    // OUTPUTS
+    document.getElementById('interestIncome').innerText =
+        `₹${totalInterest.toFixed(2)}`;
+
+    document.getElementById('feeIncome').innerText =
+        `₹${feeIncome.toFixed(2)}`;
+
+    document.getElementById('opexDisplay').innerText =
+        `₹${operatingExpense.toFixed(2)}`;
+
+    document.getElementById('netProfit').innerText =
+        `₹${netProfit.toFixed(2)}`;
+
+    document.getElementById('roi').innerText =
+        `${roi.toFixed(2)}%`;
+
+    document.getElementById('irr').innerText =
+        `${irr.toFixed(2)}%`;
+
+    document.getElementById('yield').innerText =
+        `${effectiveYield.toFixed(2)}%`;
+
+    // CHART
+    const ctx =
+        document.getElementById('loanChart').getContext('2d');
+
+    if(chartInstance){
+        chartInstance.destroy();
+    }
+
+    chartInstance = new Chart(ctx, {
+
+        type:'line',
+
+        data:{
+            labels:[...Array(periods).keys()].map(x => x + 1),
+
+            datasets:[
+                {
+                    label:'Outstanding Balance',
+                    data:balances,
+                    borderColor:'#2563eb',
+                    backgroundColor:'rgba(37,99,235,0.2)',
+                    tension:0.4
+                },
+
+                {
+                    label:'Principal Repaid',
+                    data:principalData,
+                    borderColor:'#16a34a',
+                    backgroundColor:'rgba(22,163,74,0.2)',
+                    tension:0.4
+                },
+
+                {
+                    label:'Interest Component',
+                    data:interestData,
+                    borderColor:'#dc2626',
+                    backgroundColor:'rgba(220,38,38,0.2)',
+                    tension:0.4
+                }
+            ]
+        },
+
+        options:{
+            responsive:true,
+
+            plugins:{
+                legend:{
+                    position:'top'
+                }
+            }
+        }
+    });
+}
+
+calculateLoan();
+
+</script>
+
+</body>
+</html>
