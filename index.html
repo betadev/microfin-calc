@@ -195,13 +195,25 @@ th:first-child{
 }
 
 @media(max-width:1200px){
-    .container{grid-template-columns:1fr;}
-    .metrics{grid-template-columns:repeat(2,1fr);}
-    .charts{grid-template-columns:1fr;}
+
+    .container{
+        grid-template-columns:1fr;
+    }
+
+    .metrics{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .charts{
+        grid-template-columns:1fr;
+    }
 }
 
 @media(max-width:768px){
-    .metrics{grid-template-columns:1fr;}
+
+    .metrics{
+        grid-template-columns:1fr;
+    }
 }
 
 </style>
@@ -210,216 +222,383 @@ th:first-child{
 <body>
 
 <h1>Recursive Lending Portfolio Dashboard</h1>
+
 <p class="subtitle">
 Actuarial NBFC / Microfinance recursive lending and redeployment simulator.
 </p>
 
 <div class="container">
 
-<!-- INPUT PANEL -->
-<div class="card">
+    <!-- INPUT PANEL -->
 
-<h2 style="margin-bottom:20px;">Simulation Inputs</h2>
+    <div class="card">
 
-<div class="input-group">
-<label>
-Initial Amount (₹)
-<span class="tooltip">?
-<span class="tooltiptext">Total starting capital available for lending deployment.</span>
-</span>
-</label>
-<input type="number" id="principal" value="100000">
-</div>
+        <h2 style="margin-bottom:20px;">Simulation Inputs</h2>
 
-<div class="input-group">
-<label>
-Monthly Interest Rate (%)
-<span class="tooltip">?
-<span class="tooltiptext">Flat monthly interest charged on deployed loans.</span>
-</span>
-</label>
-<input type="number" id="interestRate" value="2" step="0.1">
-</div>
+        <div class="input-group">
+            <label>
+                Initial Amount (₹)
+                <span class="tooltip">?
+                    <span class="tooltiptext">
+                        Total starting capital available for lending deployment.
+                    </span>
+                </span>
+            </label>
+            <input type="number" id="principal" value="100000">
+        </div>
 
-<div class="input-group">
-<label>
-Loan Tenure (Months)
-<span class="tooltip">?
-<span class="tooltiptext">Duration over which each loan is repaid through EMIs.</span>
-</span>
-</label>
-<input type="number" id="loanMonths" value="6">
-</div>
+        <div class="input-group">
+            <label>
+                Monthly Interest Rate (%)
+                <span class="tooltip">?
+                    <span class="tooltiptext">
+                        Flat monthly interest charged on deployed loans.
+                    </span>
+                </span>
+            </label>
+            <input type="number" id="interestRate" value="2" step="0.1">
+        </div>
 
-<div class="input-group">
-<label>
-Repayment Frequency
-<span class="tooltip">?
-<span class="tooltiptext">Frequency of borrower repayments (cash recycling speed).</span>
-</span>
-</label>
+        <div class="input-group">
+            <label>
+                Loan Tenure (Months)
+                <span class="tooltip">?
+                    <span class="tooltiptext">
+                        Duration over which each loan is repaid through EMIs.
+                    </span>
+                </span>
+            </label>
+            <input type="number" id="loanMonths" value="6">
+        </div>
 
-<select id="frequency">
-<option value="365">Daily</option>
-<option value="52" selected>Weekly</option>
-<option value="12">Monthly</option>
-<option value="4">Quarterly</option>
-<option value="2">Semi-Yearly</option>
-<option value="1">Yearly</option>
-</select>
-</div>
+        <div class="input-group">
+            <label>
+                Repayment Frequency
+                <span class="tooltip">?
+                    <span class="tooltiptext">
+                        Frequency at which borrower repayments are collected.
+                    </span>
+                </span>
+            </label>
 
-<div class="input-group">
-<label>
-Simulation Duration (Years)
-<span class="tooltip">?
-<span class="tooltiptext">Total time horizon for portfolio simulation.</span>
-</span>
-</label>
-<input type="number" id="years" value="1" step="0.5">
-</div>
+            <select id="frequency">
+                <option value="365">Daily</option>
+                <option value="52" selected>Weekly</option>
+                <option value="12">Monthly</option>
+                <option value="4">Quarterly</option>
+                <option value="2">Semi-Yearly</option>
+                <option value="1">Yearly</option>
+            </select>
+        </div>
 
-<div class="input-group">
-<label>
-Delinquency Rate (%)
-<span class="tooltip">?
-<span class="tooltiptext">Expected repayment loss rate.</span>
-</span>
-</label>
-<input type="number" id="delinquency" value="0" step="0.1">
-</div>
+        <div class="input-group">
+            <label>
+                Simulation Duration (Years)
+                <span class="tooltip">?
+                    <span class="tooltiptext">
+                        Total time horizon for recursive lending simulation.
+                    </span>
+                </span>
+            </label>
+            <input type="number" id="years" value="3" step="0.5">
+        </div>
 
-<div class="input-group">
-<label>
-Processing Fee Value
-<span class="tooltip">?
-<span class="tooltiptext">Fee earned per loan deployment.</span>
-</span>
-</label>
-<input type="number" id="feeValue" value="0">
-</div>
+        <div class="input-group">
+            <label>
+                Delinquency Rate (%)
+                <span class="tooltip">?
+                    <span class="tooltiptext">
+                        Percentage of expected collections assumed unpaid or delayed.
+                    </span>
+                </span>
+            </label>
+            <input type="number" id="delinquency" value="3" step="0.1">
+        </div>
 
-<div class="input-group">
-<label>
-Operating Expense Value
-<span class="tooltip">?
-<span class="tooltiptext">Cost of operations per period or percentage of collections (as per model).</span>
-</span>
-</label>
-<input type="number" id="expenseValue" value="0">
-</div>
+        <div class="input-group">
+            <label>
+                Processing Fee Type
+                <span class="tooltip">?
+                    <span class="tooltiptext">
+                        Percentage or fixed fee charged on each loan deployment.
+                    </span>
+                </span>
+            </label>
 
-<button onclick="runSimulation()">Run Simulation</button>
+            <select id="feeType">
+                <option value="percentage">Percentage</option>
+                <option value="fixed">Fixed Amount</option>
+            </select>
+        </div>
 
-</div>
+        <div class="input-group">
+            <label>
+                Processing Fee Value
+                <span class="tooltip">?
+                    <span class="tooltiptext">
+                        Processing income earned from each new loan deployment.
+                    </span>
+                </span>
+            </label>
+            <input type="number" id="feeValue" value="1">
+        </div>
 
-<!-- DASHBOARD -->
-<div>
+        <div class="input-group">
+            <label>
+                Operating Expense Type
+                <span class="tooltip">?
+                    <span class="tooltiptext">
+                        Expense can be fixed or percentage of collections.
+                    </span>
+                </span>
+            </label>
 
-<div class="metrics">
+            <select id="expenseType">
+                <option value="percentage">Percentage of Collections</option>
+                <option value="fixed">Fixed Periodic Expense</option>
+            </select>
+        </div>
 
-<div class="metric">
-<h3>
-Portfolio Outstanding
-<span class="tooltip">?<span class="tooltiptext">Total active loan exposure at a point in time.</span></span>
-</h3>
-<p id="portfolioValue">₹0</p>
-</div>
+        <div class="input-group">
+            <label>
+                Operating Expense Value
+                <span class="tooltip">?
+                    <span class="tooltiptext">
+                        Includes collection costs, underwriting, salaries and servicing expenses.
+                    </span>
+                </span>
+            </label>
+            <input type="number" id="expenseValue" value="5">
+        </div>
 
-<div class="metric">
-<h3>
-Interest Income
-<span class="tooltip">?<span class="tooltiptext">Total interest earned from lending activity.</span></span>
-</h3>
-<p id="interestEarned">₹0</p>
-</div>
+        <button onclick="runSimulation()">
+            Run Simulation
+        </button>
 
-<div class="metric">
-<h3>
-Fees
-<span class="tooltip">?<span class="tooltiptext">Total processing fee income.</span></span>
-</h3>
-<p id="feesEarned">₹0</p>
-</div>
+        <div class="note">
 
-<div class="metric">
-<h3>
-Net Profit
-<span class="tooltip">?<span class="tooltiptext">Revenue minus operating costs.</span></span>
-</h3>
-<p id="netProfit">₹0</p>
-</div>
+            <b>Model Logic:</b>
 
-<div class="metric">
-<h3>
-ROI
-<span class="tooltip">?<span class="tooltiptext">Return on initial capital deployed.</span></span>
-</h3>
-<p id="roi">0%</p>
-</div>
+            <ul style="padding-left:18px;margin-top:10px;">
 
-<div class="metric">
-<h3>
-IRR Approx
-<span class="tooltip">?<span class="tooltiptext">Compounded return estimate.</span></span>
-</h3>
-<p id="irr">0%</p>
-</div>
+                <li>Interest calculated on deployed principal.</li>
 
-<div class="metric">
-<h3>
-ROA
-<span class="tooltip">?<span class="tooltiptext">Return on average assets.</span></span>
-</h3>
-<p id="roa">0%</p>
-</div>
+                <li>Repayments divided into EMIs.</li>
 
-<div class="metric">
-<h3>
-Cost/Income Ratio
-<span class="tooltip">?<span class="tooltiptext">Efficiency ratio of operating costs to revenue.</span></span>
-</h3>
-<p id="cir">0%</p>
-</div>
+                <li>Collections pooled each period.</li>
 
-</div>
+                <li>Pooled liquidity redeployed once per cycle.</li>
 
-<div class="charts">
+                <li>Prevents unrealistic recursive explosion.</li>
 
-<div class="card">
-<h3 style="margin-bottom:15px;">
-Portfolio Growth
-<span class="tooltip">?<span class="tooltiptext">Growth of lending book over time.</span></span>
-</h3>
-<canvas id="growthChart"></canvas>
-</div>
+            </ul>
 
-<div class="card">
-<h3 style="margin-bottom:15px;">
-Revenue Mix
-<span class="tooltip">?<span class="tooltiptext">Composition of income and costs.</span></span>
-</h3>
-<canvas id="revenueChart"></canvas>
-</div>
+        </div>
 
-</div>
+    </div>
 
-<table>
-<thead>
-<tr>
-<th>Period</th>
-<th>Collections</th>
-<th>Interest</th>
-<th>Fees</th>
-<th>Expenses</th>
-<th>Reinvestment</th>
-<th>Portfolio</th>
-</tr>
-</thead>
-<tbody id="tableBody"></tbody>
-</table>
+    <!-- DASHBOARD -->
 
-</div>
+    <div>
+
+        <div class="metrics">
+
+            <div class="metric">
+                <h3>
+                    Portfolio Outstanding
+                    <span class="tooltip">?
+                        <span class="tooltiptext">
+                            Total recursive portfolio currently active and deployed.
+                        </span>
+                    </span>
+                </h3>
+                <p id="portfolioValue">₹0</p>
+            </div>
+
+            <div class="metric">
+                <h3>
+                    Total Interest Earned
+                    <span class="tooltip">?
+                        <span class="tooltiptext">
+                            Total lending interest generated across all loan cycles.
+                        </span>
+                    </span>
+                </h3>
+                <p id="interestEarned">₹0</p>
+            </div>
+
+            <div class="metric">
+                <h3>
+                    Total Fee Income
+                    <span class="tooltip">?
+                        <span class="tooltiptext">
+                            Total processing fee income earned from all deployments.
+                        </span>
+                    </span>
+                </h3>
+                <p id="feesEarned">₹0</p>
+            </div>
+
+            <div class="metric">
+                <h3>
+                    Net Profit
+                    <span class="tooltip">?
+                        <span class="tooltiptext">
+                            Total revenue minus operating expenses.
+                        </span>
+                    </span>
+                </h3>
+                <p id="netProfit">₹0</p>
+            </div>
+
+            <div class="metric">
+                <h3>
+                    Annual ROI
+                    <span class="tooltip">?
+                        <span class="tooltiptext">
+                            Annualized return generated on initial capital deployed.
+                        </span>
+                    </span>
+                </h3>
+                <p id="roi">0%</p>
+            </div>
+
+            <div class="metric">
+                <h3>
+                    IRR Equivalent
+                    <span class="tooltip">?
+                        <span class="tooltiptext">
+                            Approximate compounded portfolio growth rate.
+                        </span>
+                    </span>
+                </h3>
+                <p id="irr">0%</p>
+            </div>
+
+            <div class="metric">
+                <h3>
+                    ROA
+                    <span class="tooltip">?
+                        <span class="tooltiptext">
+                            Return generated relative to average deployed assets.
+                        </span>
+                    </span>
+                </h3>
+                <p id="roa">0%</p>
+            </div>
+
+            <div class="metric">
+                <h3>
+                    Cost / Income Ratio
+                    <span class="tooltip">?
+                        <span class="tooltiptext">
+                            Operating expenses divided by total revenue.
+                        </span>
+                    </span>
+                </h3>
+                <p id="cir">0%</p>
+            </div>
+
+        </div>
+
+        <div class="charts">
+
+            <div class="card">
+                <h3 style="margin-bottom:15px;">
+                    Portfolio Growth
+                    <span class="tooltip">?
+                        <span class="tooltiptext">
+                            Growth of recursively redeployed lending portfolio over time.
+                        </span>
+                    </span>
+                </h3>
+                <canvas id="growthChart"></canvas>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom:15px;">
+                    Revenue Mix
+                    <span class="tooltip">?
+                        <span class="tooltiptext">
+                            Breakdown of interest income, fee income and operating expenses.
+                        </span>
+                    </span>
+                </h3>
+                <canvas id="revenueChart"></canvas>
+            </div>
+
+        </div>
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Period</th>
+
+                    <th>
+                        Collections
+                        <span class="tooltip">?
+                            <span class="tooltiptext">
+                                Total borrower EMI collections during the period.
+                            </span>
+                        </span>
+                    </th>
+
+                    <th>
+                        Interest Income
+                        <span class="tooltip">?
+                            <span class="tooltiptext">
+                                Interest component earned from collections.
+                            </span>
+                        </span>
+                    </th>
+
+                    <th>
+                        Fees
+                        <span class="tooltip">?
+                            <span class="tooltiptext">
+                                Processing fee income generated from deployments.
+                            </span>
+                        </span>
+                    </th>
+
+                    <th>
+                        Expenses
+                        <span class="tooltip">?
+                            <span class="tooltiptext">
+                                Operational and servicing costs during the period.
+                            </span>
+                        </span>
+                    </th>
+
+                    <th>
+                        Reinvestment
+                        <span class="tooltip">?
+                            <span class="tooltiptext">
+                                Net collections redeployed into fresh loans.
+                            </span>
+                        </span>
+                    </th>
+
+                    <th>
+                        Portfolio
+                        <span class="tooltip">?
+                            <span class="tooltiptext">
+                                Outstanding recursive lending portfolio after redeployment.
+                            </span>
+                        </span>
+                    </th>
+                </tr>
+
+            </thead>
+
+            <tbody id="tableBody"></tbody>
+
+        </table>
+
+    </div>
+
 </div>
 
 <script>
@@ -428,158 +607,324 @@ let growthChart;
 let revenueChart;
 
 function money(v){
-return "₹" + Number(v).toLocaleString('en-IN',{maximumFractionDigits:0});
+
+    return "₹" + Number(v).toLocaleString('en-IN',{
+        maximumFractionDigits:0
+    });
 }
 
 function runSimulation(){
 
-const principal = parseFloat(document.getElementById('principal').value);
-const monthlyRate = parseFloat(document.getElementById('interestRate').value)/100;
-const loanMonths = parseFloat(document.getElementById('loanMonths').value);
-const freq = parseFloat(document.getElementById('frequency').value);
-const years = parseFloat(document.getElementById('years').value);
-const delinquency = parseFloat(document.getElementById('delinquency').value)/100;
-const feeValue = parseFloat(document.getElementById('feeValue').value);
-const expenseValue = parseFloat(document.getElementById('expenseValue').value);
+    const principal =
+        parseFloat(document.getElementById('principal').value);
 
-const totalPeriods = Math.round(freq * years);
-const repaymentPeriods = Math.round(freq * (loanMonths / 12));
+    const monthlyRate =
+        parseFloat(document.getElementById('interestRate').value)/100;
 
-let totalInterest = 0;
-let totalFees = 0;
-let totalExpenses = 0;
+    const loanMonths =
+        parseFloat(document.getElementById('loanMonths').value);
 
-let loans = [];
-let labels = [];
-let growthData = [];
+    const freq =
+        parseFloat(document.getElementById('frequency').value);
 
-document.getElementById("tableBody").innerHTML = "";
+    const years =
+        parseFloat(document.getElementById('years').value);
 
-function deployLoan(amount){
+    const delinquency =
+        parseFloat(document.getElementById('delinquency').value)/100;
 
-if(amount <= 0) return;
+    const feeType =
+        document.getElementById('feeType').value;
 
-const totalRepayable = amount * (1 + (monthlyRate * loanMonths));
-const totalInterestLoan = totalRepayable - amount;
-const emi = totalRepayable / repaymentPeriods;
+    const feeValue =
+        parseFloat(document.getElementById('feeValue').value);
 
-totalFees += feeValue;
+    const expenseType =
+        document.getElementById('expenseType').value;
 
-loans.push({
-principal: amount,
-totalRepayable,
-totalInterestLoan,
-emi,
-periodsRemaining: repaymentPeriods
-});
-}
+    const expenseValue =
+        parseFloat(document.getElementById('expenseValue').value);
 
-deployLoan(principal);
+    const totalPeriods = Math.round(freq * years);
 
-for(let period=1; period<=totalPeriods; period++){
+    const repaymentPeriods =
+        Math.round(freq * (loanMonths / 12));
 
-let collections = 0;
-let interestIncome = 0;
+    let totalInterest = 0;
+    let totalFees = 0;
+    let totalExpenses = 0;
+    let totalCollections = 0;
 
-loans.forEach(loan=>{
+    let loans = [];
 
-if(loan.periodsRemaining > 0){
+    let labels = [];
+    let growthData = [];
 
-let payment = loan.emi * (1 - delinquency);
-collections += payment;
+    document.getElementById("tableBody").innerHTML = "";
 
-let interestPart =
-(loan.totalInterestLoan / repaymentPeriods) * (1 - delinquency);
+    function deployLoan(amount){
 
-interestIncome += interestPart;
+        if(amount <= 0) return;
 
-loan.periodsRemaining--;
-}
-});
+        const totalRepayable =
+            amount * (1 + (monthlyRate * loanMonths));
 
-totalInterest += interestIncome;
+        const totalInterestLoan =
+            totalRepayable - amount;
 
-let expenses = collections * (expenseValue / 100);
-totalExpenses += expenses;
+        const emi =
+            totalRepayable / repaymentPeriods;
 
-let reinvestment = Math.max(collections - expenses,0);
+        let fee = 0;
 
-deployLoan(reinvestment);
+        if(feeType === "percentage"){
 
-let portfolio = 0;
+            fee = amount * (feeValue / 100);
 
-loans.forEach(l=>{
-portfolio += l.emi * l.periodsRemaining;
-});
+        }else{
 
-document.getElementById("tableBody").innerHTML += `
-<tr>
-<td>${period}</td>
-<td>${money(collections)}</td>
-<td>${money(interestIncome)}</td>
-<td>${money(totalFees)}</td>
-<td>${money(expenses)}</td>
-<td>${money(reinvestment)}</td>
-<td>${money(portfolio)}</td>
-</tr>
-`;
+            fee = feeValue;
+        }
 
-labels.push("P"+period);
-growthData.push(portfolio);
-}
+        totalFees += fee;
 
-const finalPortfolio = growthData[growthData.length-1];
-const totalRevenue = totalInterest + totalFees;
-const netProfit = totalRevenue - totalExpenses;
+        loans.push({
 
-const roi = ((netProfit / principal) / years) * 100;
-const irr = ((Math.pow(finalPortfolio/principal,1/years))-1)*100;
-const roa = (netProfit / ((principal+finalPortfolio)/2))*100;
-const cir = (totalExpenses / totalRevenue)*100;
+            principal: amount,
 
-document.getElementById("portfolioValue").innerText = money(finalPortfolio);
-document.getElementById("interestEarned").innerText = money(totalInterest);
-document.getElementById("feesEarned").innerText = money(totalFees);
-document.getElementById("netProfit").innerText = money(netProfit);
-document.getElementById("roi").innerText = roi.toFixed(2)+"%";
-document.getElementById("irr").innerText = irr.toFixed(2)+"%";
-document.getElementById("roa").innerText = roa.toFixed(2)+"%";
-document.getElementById("cir").innerText = cir.toFixed(2)+"%";
+            totalRepayable: totalRepayable,
 
-renderCharts(labels,growthData,totalInterest,totalFees,totalExpenses);
+            totalInterestLoan: totalInterestLoan,
+
+            emi: emi,
+
+            periodsRemaining: repaymentPeriods
+
+        });
+    }
+
+    deployLoan(principal);
+
+    for(let period=1; period<=totalPeriods; period++){
+
+        let collections = 0;
+        let interestIncome = 0;
+        let outstanding = 0;
+
+        loans.forEach(loan=>{
+
+            outstanding +=
+                loan.emi * loan.periodsRemaining;
+
+            if(loan.periodsRemaining > 0){
+
+                let payment =
+                    loan.emi * (1 - delinquency);
+
+                collections += payment;
+
+                let interestPart =
+                    (loan.totalInterestLoan / repaymentPeriods)
+                    * (1 - delinquency);
+
+                interestIncome += interestPart;
+
+                loan.periodsRemaining--;
+            }
+        });
+
+        totalCollections += collections;
+
+        totalInterest += interestIncome;
+
+        let expenses = 0;
+
+        if(expenseType === "percentage"){
+
+            expenses =
+                collections * (expenseValue / 100);
+
+        }else{
+
+            expenses = expenseValue;
+        }
+
+        totalExpenses += expenses;
+
+        let reinvestment =
+            Math.max(collections - expenses,0);
+
+        deployLoan(reinvestment);
+
+        let portfolio = 0;
+
+        loans.forEach(loan=>{
+
+            portfolio +=
+                loan.emi * loan.periodsRemaining;
+        });
+
+        document.getElementById("tableBody").innerHTML += `
+
+            <tr>
+
+                <td>${period}</td>
+
+                <td>${money(collections)}</td>
+
+                <td>${money(interestIncome)}</td>
+
+                <td>${money(totalFees)}</td>
+
+                <td>${money(expenses)}</td>
+
+                <td>${money(reinvestment)}</td>
+
+                <td>${money(portfolio)}</td>
+
+            </tr>
+
+        `;
+
+        labels.push("P"+period);
+
+        growthData.push(portfolio);
+    }
+
+    const finalPortfolio =
+        growthData[growthData.length-1];
+
+    const totalRevenue =
+        totalInterest + totalFees;
+
+    const netProfit =
+        totalRevenue - totalExpenses;
+
+    const annualROI =
+        ((netProfit / principal) / years) * 100;
+
+    const irr =
+        ((Math.pow(finalPortfolio/principal,1/years))-1)*100;
+
+    const roa =
+        (netProfit / ((principal+finalPortfolio)/2))*100;
+
+    const cir =
+        (totalExpenses / totalRevenue)*100;
+
+    document.getElementById("portfolioValue").innerText =
+        money(finalPortfolio);
+
+    document.getElementById("interestEarned").innerText =
+        money(totalInterest);
+
+    document.getElementById("feesEarned").innerText =
+        money(totalFees);
+
+    document.getElementById("netProfit").innerText =
+        money(netProfit);
+
+    document.getElementById("roi").innerText =
+        annualROI.toFixed(2)+"%";
+
+    document.getElementById("irr").innerText =
+        irr.toFixed(2)+"%";
+
+    document.getElementById("roa").innerText =
+        roa.toFixed(2)+"%";
+
+    document.getElementById("cir").innerText =
+        cir.toFixed(2)+"%";
+
+    renderCharts(
+        labels,
+        growthData,
+        totalInterest,
+        totalFees,
+        totalExpenses
+    );
 }
 
 function renderCharts(labels,data,interest,fees,expenses){
 
-if(growthChart) growthChart.destroy();
-if(revenueChart) revenueChart.destroy();
+    if(growthChart) growthChart.destroy();
 
-growthChart = new Chart(document.getElementById("growthChart"),{
-type:'line',
-data:{
-labels,
-datasets:[{
-label:'Portfolio',
-data,
-borderColor:'#2563eb',
-backgroundColor:'rgba(37,99,235,0.12)',
-fill:true,
-tension:0.35,
-borderWidth:3
-}]
-}
-});
+    if(revenueChart) revenueChart.destroy();
 
-revenueChart = new Chart(document.getElementById("revenueChart"),{
-type:'doughnut',
-data:{
-labels:['Interest','Fees','Expenses'],
-datasets:[{
-data:[interest,fees,expenses],
-backgroundColor:['#2563eb','#16a34a','#dc2626']
-}]
-}
-});
+    growthChart = new Chart(
+
+        document.getElementById("growthChart"),
+
+        {
+
+            type:'line',
+
+            data:{
+
+                labels:labels,
+
+                datasets:[{
+
+                    label:'Portfolio Outstanding',
+
+                    data:data,
+
+                    borderColor:'#2563eb',
+
+                    backgroundColor:'rgba(37,99,235,0.12)',
+
+                    fill:true,
+
+                    tension:0.35,
+
+                    borderWidth:3
+
+                }]
+            },
+
+            options:{
+                responsive:true
+            }
+        }
+    );
+
+    revenueChart = new Chart(
+
+        document.getElementById("revenueChart"),
+
+        {
+
+            type:'doughnut',
+
+            data:{
+
+                labels:[
+                    'Interest Income',
+                    'Fee Income',
+                    'Operating Expenses'
+                ],
+
+                datasets:[{
+
+                    data:[
+                        interest,
+                        fees,
+                        expenses
+                    ],
+
+                    backgroundColor:[
+                        '#2563eb',
+                        '#16a34a',
+                        '#dc2626'
+                    ]
+                }]
+            },
+
+            options:{
+                responsive:true
+            }
+        }
+    );
 }
 
 runSimulation();
